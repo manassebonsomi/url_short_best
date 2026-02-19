@@ -56,6 +56,14 @@
                 {{ url.clicks }}
               </span>
             </td>
+            <td class="px-5 py-5 border-b">
+              <form action="{{ route('urls.destroy', { slug: url.slug }) }}" method="POST">
+                <input type="hidden" name="_method" value="DELETE">
+                <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+                {{ csrfField() }}
+                <button type="submit" class="text-red-600 hover:text-red-900 font-medium">Supprimer</button>
+              </form>
+            </td>
           </tr>
           @endeach
         @else

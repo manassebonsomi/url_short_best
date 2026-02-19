@@ -14,4 +14,4 @@ router.post('/shorten', [UrlsController, 'store'])
 router.get('/r/:slug', [UrlsController, 'redirect'])
 
 // Route de suppression
-router.delete('/urls/:slug', [UrlsController, 'destroy'])
+router.delete('/urls/:slug', [UrlsController, 'destroy']).as('urls.destroy')
