@@ -6,10 +6,13 @@ export default class Url extends BaseModel {
   declare id: number
 
   @column()
-  declare originalUrl: string
+  declare original_url: string
 
   @column()
   declare slug: string
+
+  @column()
+  declare qr_image_url: string
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

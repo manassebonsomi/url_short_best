@@ -1,90 +1,96 @@
 import type { HttpContext } from '@adonisjs/core/http'
 // import { nanoid } from 'nanoid'
 import generateSlug from '#helpers/generateSlug'
+import Url from '#models/url'
 import QRCode from 'qrcode'
 
-// Stockage en mémoire (remplace la base de données)
-const urlDatabase = new Map<string, string>()
-const urlsStorage: any[] = []
 
-
-export default class UrlsController {
-  /**
-   * Affiche la page d'accueil
-   */
- public async index({ view }: HttpContext) {
-    return view.render('pages/home')
+export default class UrlController {
+  // Affiche la page d'accueil (Formulaire de création)
+ public async showForm({ view }: HttpContext) {
+    return view.render('pages/index')
   }
 
-  /**
-   * Crée le raccourci et génère le QR Code
-   */
- public async store({ request, view }: HttpContext) {
-    const originalUrl = request.input('url')
-      
-    // 1. Générer un identifiant unique de 6 caractères
-    //const slug = nanoid(6)
-    const slug = generateSlug(6)
+  // Création d'une URL (POST /shorten)
+ public async store({ request, response }: HttpContext) {
+    const original_url = request.input('url')
+    const slug = request.input('short_slug') // URL courte personnalisée
+
+    // Génération du QR Code
+    const shortFullUrl = `${request.protocol()}://${request.host()}/${slug}`
+    const qr_image_url = await QRCode.toDataURL(shortFullUrl)
+
+    // Persistance CRUD : Create
+    await Url.create({ original_url, slug, qr_image_url })
+
+    return response.redirect().toRoute('UrlController.goToUrl')
+  }
+
+  // Page goToUrl (Listing + Recherche/Redirection)
+ public async goToUrl({ view }: HttpContext) {
+    // CRUD : Read (Liste toutes les URLs)
+    const urls = await Url.query().orderBy('created_at', 'desc')
+    return view.render('pages/goToUrl', { urls })
+  }
+
+
+  // Redirection via le champ "phrase à encoder"
+ public async handleSearch({ request, response, session }: HttpContext) {
+    const slug = request.input('phrase')
+    const urlEntry = await Url.findBy('slug', slug)
+
+    if (urlEntry) {
+      return response.redirect(urlEntry.original_url)
+    }
     
-    // 2. Sauvegarder dans notre "base de données" en mémoire
-    urlDatabase.set(slug, originalUrl)
-
-    // 3. Préparer l'URL raccourcie
-    const shortUrl = `http://localhost:3333/r/${slug}`
-
-    // 4. Générer le QR Code en format Base64
-    const qrCodeData = await QRCode.toDataURL(shortUrl)
-
-    urlsStorage.push({
-        originalUrl,
-        slug,
-        shortUrl,
-        qrCodeData,
-        createdAt: new Date().toLocaleString(),
-        clicks: 0
-      })
-
-    return view.render('pages/home', {
-      shortUrl,
-      qrCodeData,
-      originalUrl,
-      createdAt: new Date().toLocaleString(),
-      clicks: 0
-    })
-    
-  }
-
-  public async listing({ view }: HttpContext) {
-    return view.render('pages/list', { urls: urlsStorage })
+    session.flash('error', 'URL courte non trouvée')
+    return response.redirect().back()
   }
 
   /**
-   * Redirection via le slug
+   * Afficher le formulaire de modification
    */
-  public async redirect({ params, response }: HttpContext) {
-    const slug = params.slug
-    const originalUrl = urlDatabase.get(slug)
-
-    if (originalUrl) {
-      return response.redirect(originalUrl)
-    }
-
-    const entry = urlsStorage.find((u) => u.slug === params.slug)
-
-    if (entry) {
-      entry.clicks++ // Incrémenter le compteur de clics
-      return response.redirect(entry.originalUrl)
-    }
-
-    return response.notFound('URL non trouvée')
+  async edit({ params, view }: HttpContext) {
+    const url = await Url.findOrFail(params.id)
+    return view.render('pages/edit', { url })
   }
 
-  public async destroy({ params, response }: HttpContext) {
-    const index = urlsStorage.findIndex((u) => u.slug === params.slug)
-    if (index !== -1) {
-      urlsStorage.splice(index, 1)
+  /**
+   * Traiter la mise à jour (Action du formulaire)
+   */
+  async update({ params, request, response, session }: HttpContext) {
+    const url = await Url.findOrFail(params.id)
+    
+    // Récupérer les nouvelles données
+    const newOriginalUrl = request.input('url')
+    const newSlug = request.input('short_slug')
+
+    // Si le slug a été modifié, on doit régénérer le QR Code
+    if (newSlug !== url.slug) {
+      const shortFullUrl = `${request.protocol()}://${request.host()}/${newSlug}`
+      url.qr_image_url = await QRCode.toDataURL(shortFullUrl)
     }
-    return response.redirect().toRoute('UrlController.listing')
+
+    // Mise à jour des champs
+    url.original_url = newOriginalUrl
+    url.slug = newSlug
+
+    await url.save() // CRUD : Update dans Postgres
+
+    session.flash('success', 'URL mise à jour avec succès')
+    return response.redirect().toRoute('UrlController.goToUrl')
   }
 
+  // Suppression (Delete)
+ public async destroy({ params, response }: HttpContext) {
+    const url = await Url.findOrFail(params.id)
+    await url.delete()
+    return response.redirect().back()
+  }
+
+  // Redirection directe (pour le scan QR ou lien direct)
+ public async redirect({ params, response }: HttpContext) {
+    const url = await Url.findByOrFail('slug', params.slug)
+    return response.redirect(url.original_url)
+  }
 }

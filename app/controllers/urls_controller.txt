@@ -1,0 +1,90 @@
+import type { HttpContext } from '@adonisjs/core/http'
+// import { nanoid } from 'nanoid'
+import generateSlug from '#helpers/generateSlug'
+import Url from '#models/url'
+import QRCode from 'qrcode'
+
+
+// Stockage en mémoire (remplace la base de données)
+const urlDatabase = new Map<string, string>()
+const urlsStorage: any[] = []
+
+
+export default class UrlsController {
+ // page accueil 
+ public async index({ view }: HttpContext) {
+    return view.render('pages/home')
+  }
+
+  /**
+   * Crée le raccourci et génère le QR Code
+   */
+ public async store({ request, view }: HttpContext) {
+    const originalUrl = request.input('url')
+      
+    // 1. Générer un identifiant unique de 6 caractères
+    //const slug = nanoid(6)
+    const slug = generateSlug(6)
+    
+    // 2. Sauvegarder dans notre "base de données" en mémoire
+    urlDatabase.set(slug, originalUrl)
+
+    // 3. Préparer l'URL raccourcie
+    const shortUrl = `http://localhost:3333/r/${slug}`
+
+    // 4. Générer le QR Code en format Base64
+    const qrCodeData = await QRCode.toDataURL(shortUrl)
+
+    urlsStorage.push({
+        originalUrl,
+        slug,
+        shortUrl,
+        qrCodeData,
+        createdAt: new Date().toLocaleString(),
+        clicks: 0
+      })
+
+    return view.render('pages/home', {
+      shortUrl,
+      qrCodeData,
+      originalUrl,
+      createdAt: new Date().toLocaleString(),
+      clicks: 0
+    })
+    
+  }
+
+  public async listing({ view }: HttpContext) {
+    return view.render('pages/list', { urls: urlsStorage })
+  }
+
+  /**
+   * Redirection via le slug
+   */
+  public async redirect({ params, response }: HttpContext) {
+    const slug = params.slug
+    const originalUrl = urlDatabase.get(slug)
+
+    if (originalUrl) {
+      return response.redirect(originalUrl)
+    }
+
+    const entry = urlsStorage.find((u) => u.slug === params.slug)
+
+    if (entry) {
+      entry.clicks++ // Incrémenter le compteur de clics
+      return response.redirect(entry.originalUrl)
+    }
+
+    return response.notFound('URL non trouvée')
+  }
+
+  public async destroy({ params, response }: HttpContext) {
+    const index = urlsStorage.findIndex((u) => u.slug === params.slug)
+    if (index !== -1) {
+      urlsStorage.splice(index, 1)
+    }
+    return response.redirect().toRoute('UrlController.listing')
+  }
+
+}

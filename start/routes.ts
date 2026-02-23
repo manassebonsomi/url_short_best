@@ -1,17 +1,16 @@
 import router from '@adonisjs/core/services/router'
-const UrlsController = () => import('#controllers/urls_controller')
+const UrlController = () => import('#controllers/urls_controller')
 
-// Page d'accueil (Formulaire)
-router.get('/', [UrlsController, 'index'])
+router.get('/', [UrlController, 'showForm'])
+router.post('/shorten', [UrlController, 'store'])
 
-// Route d'administration / listing
-router.get('/list', [UrlsController, 'listing'])
+router.get('/goToUrl', [UrlController, 'goToUrl']).as('UrlController.goToUrl')
+router.post('/search', [UrlController, 'handleSearch']).as('go.search')
 
-// Traitement du formulaire
-router.post('/shorten', [UrlsController, 'store'])
+router.get('/urls/:id/edit', [UrlController, 'edit']).as('UrlController.edit') // Page de formulaire
+router.put('/urls/:id', [UrlController, 'update']).as('UrlController.update')    // Action de mise à jour
 
-// Redirection (ex: /r/aB3x9)
-router.get('/r/:slug', [UrlsController, 'redirect'])
+router.delete('/urls/:id', [UrlController, 'destroy']).as('UrlController.destroy')
 
-// Route de suppression
-router.delete('/urls/:slug', [UrlsController, 'destroy']).as('urls.destroy')
+// Route pour le scan QR / Redirection directe
+router.get('/:slug', [UrlController, 'redirect'])
