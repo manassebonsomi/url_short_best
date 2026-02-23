@@ -15,6 +15,21 @@
 </head>
 <body class="min-h-screen flex flex-col justify-center">
 
+<nav class="bg-indigo-600 text-white shadow-lg">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-2">
+          <span class="text-2xl font-bold tracking-tight">QR<span class="text-indigo-200">Short</span></span>
+        </div>
+        
+        <div class="flex space-x-6 font-medium">
+          <a href="/" class="hover:text-indigo-200 transition">Accueil</a>
+          <a href="/goToUrl" class="hover:text-indigo-200 transition">Liste</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
 <div class="max-w-lg mx-auto mt-10 p-6 bg-white rounded-lg shadow">
   <h2 class="text-2xl font-bold mb-4">Créer un raccourci</h2>
   <form action="/shorten" method="POST">

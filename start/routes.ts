@@ -7,10 +7,9 @@ router.post('/shorten', [UrlController, 'store'])
 router.get('/goToUrl', [UrlController, 'goToUrl']).as('UrlController.goToUrl')
 router.post('/search', [UrlController, 'handleSearch']).as('go.search')
 
-router.get('/urls/:id/edit', [UrlController, 'edit']).as('UrlController.edit') // Page de formulaire
-router.put('/urls/:id', [UrlController, 'update']).as('UrlController.update')    // Action de mise à jour
+router.get('/urls/:id/edit', [UrlController, 'edit']).as('UrlController.edit') 
+router.put('/urls/:id', [UrlController, 'update']).as('UrlController.update')   
 
 router.delete('/urls/:id', [UrlController, 'destroy']).as('UrlController.destroy')
 
-// Route pour le scan QR / Redirection directe
 router.get('/:slug', [UrlController, 'redirect'])
