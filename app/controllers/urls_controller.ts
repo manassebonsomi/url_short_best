@@ -50,7 +50,7 @@ export default class UrlController {
   /**
    * Afficher le formulaire de modification
    */
-  async edit({ params, view }: HttpContext) {
+  public async edit({ params, view }: HttpContext) {
     const url = await Url.findOrFail(params.id)
     return view.render('pages/edit', { url })
   }
@@ -58,7 +58,7 @@ export default class UrlController {
   /**
    * Traiter la mise à jour (Action du formulaire)
    */
-  async update({ params, request, response, session }: HttpContext) {
+  public async update({ params, request, response, session }: HttpContext) {
     const url = await Url.findOrFail(params.id)
     
     // Récupérer les nouvelles données
