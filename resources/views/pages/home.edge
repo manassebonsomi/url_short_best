@@ -1,72 +1,9 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR URL Shortener</title>
-  
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <style>
-    body {
-      background-color: #f3f4f6; /* Fond gris clair */
-    }
-  </style>
-</head>
-<body class="min-h-screen flex flex-col justify-center">
+@component("layouts/app", {title: "Accueil"})
+@slot('main')
 
-  <nav class="bg-indigo-600 text-white shadow-lg">
-    <div class="max-w-6xl mx-auto px-4">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex items-center space-x-2">
-          <span class="text-2xl font-bold tracking-tight">QR<span class="text-indigo-200">Short</span></span>
-        </div>
-        
-        <div class="flex space-x-6 font-medium">
-          <a href="/" class="hover:text-indigo-200 transition">Accueil</a>
-          <a href="/list" class="hover:text-indigo-200 transition">Liste</a>
-        </div>
-      </div>
-    </div>
-  </nav>
-
-  <div class="bg-white p-6 rounded-lg shadow-lg border">
-    <h1 class="text-2xl font-bold mb-6 text-center text-indigo-600">Raccourcisseur d'URL</h1>
-    
-    <form action="/shorten" method="POST" class="flex flex-col gap-4">
-      {{ csrfField() }}
-      <div>
-        <input 
-          type="url" 
-          name="url" 
-          placeholder="Entrez votre URL longue" 
-          required 
-          class="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-200 outline-none"
-        >
-      </div>
-      <button type="submit" class="w-full bg-indigo-600 text-white p-3 rounded-md hover:bg-indigo-700 transition">
-        Raccourcir maintenant
-      </button>
-    </form>
-
-    @if(shortUrl)
-      <div class="mt-8 p-4 border-t border-gray-200 text-center">
-        <p class="text-sm text-gray-600 mb-2">Lien raccourci :</p>
-        <a href="{{ shortUrl }}" target="_blank" class="text-indigo-600 font-bold break-all">
-          {{ shortUrl }}
-        </a>
-
-        <div class="mt-6 flex flex-col items-center">
-          <p class="text-sm text-gray-600 mb-2">Votre QR Code :</p>
-          <img src="{{ qrCodeData }}" alt="QR Code" class="border p-2 bg-white">
-        </div>
-      </div>
-    @endif
-  </div>
-
-  <footer class="bg-white border-t py-6 text-center text-gray-500 text-sm">
-    <p>&copy; 2025 - Projet Raccourcisseur d'URL & QR Code - Exercice AdonisJS</p>
-  </footer>
-
-</body>
-</html>
+  <h1 class="text-3xl font-bold">Bienvenue sur le système de QRShort Url</h1>
+  <p class="mt-2 text-slate-600">
+    Veuillez vous authentifier...
+  </p>
+  @endslot
+@end

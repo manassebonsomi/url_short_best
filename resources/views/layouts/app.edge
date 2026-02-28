@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR URL Shortener</title>
+  <title>{{ title || "Page"}}</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -13,7 +13,13 @@
     }
   </style>
 </head>
-    <body class="min-h-screen flex flex-col justify-center">
-        @yield('content')
-    </body>
+<body class="min-h-screen flex flex-col justify-center">
+    @include('partials/nav')
+
+    <main class="mx-auto max-w-5xl px-6 py-10">
+      {{{ await $slots.main() }}}
+    </main>
+
+    @include('partials/footer')
+</body>
 </html>

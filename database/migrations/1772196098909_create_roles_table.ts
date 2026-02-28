@@ -1,14 +1,20 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
 
 export default class extends BaseSchema {
-  protected tableName = 'urls'
+  protected tableName = 'roles'
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.string('original_url').notNullable()
-      table.string('slug').unique().notNullable() // L'URL courte personnalisée
-      table.text('qr_image_url').nullable() // Stockage du Base64 du QR
+      table
+        .integer('user_id')
+        .notNullable()
+        .unique()
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE')
+      table.enum('name', ['ADMIN', 'USER']).notNullable().defaultTo('USER')
+
       table.timestamp('created_at')
       table.timestamp('updated_at')
     })

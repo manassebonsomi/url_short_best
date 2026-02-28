@@ -1,0 +1,42 @@
+@component("layouts/app", {title: "QR Short Url"})
+@slot('main')
+
+<div class="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+  <h1 class="text-2xl font-semibold">Raccourci des URLs</h1>
+  <p class="mt-2 text-slate-600">
+    Bonjour, {{ auth.user.name }}. Cette page est reservee aux utilisateurs connectes.
+  </p>
+</div>
+
+<div class="max-w-lg mx-auto mt-10 p-6 bg-white rounded-lg shadow">
+  <h2 class="text-2xl font-bold mb-4">Créer un raccourci</h2>
+
+  @if(errors && errors.length)
+      <div class="mt-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <p class="font-semibold">Merci de corriger les erreurs suivantes :</p>
+        <ul class="mt-2 list-disc pl-5">
+          @each(error in errors)
+            <li>{{ error.message }}</li>
+          @end
+        </ul>
+      </div>
+    @end
+
+  <form action="/shorten" method="POST">
+    {{ csrfField() }}
+    <div class="mb-4">
+      <label>Entrez URL complète</label>
+      <input type="url" name="url" required class="w-full border p-2">
+    </div>
+    <div class="mb-4">
+      <label>Entrer le shorturl au choix (Slug)</label>
+      <input type="text" name="short_slug" required class="w-full border p-2">
+      @if(errorMap?.short_slug)
+      <p class="text-sm text-red-600">{{ errorMap.short_slug }}</p>
+      @end
+    </div>
+    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Envoyer l'URL</button>
+  </form>
+</div>
+@endslot
+@end

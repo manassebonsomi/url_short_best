@@ -1,0 +1,35 @@
+<nav class="bg-indigo-600 text-white shadow-lg">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-2">
+          <span class="text-2xl font-bold tracking-tight">QR<span class="text-indigo-200">Short</span></span>
+        </div>
+        
+        <div class="flex space-x-6 font-medium">
+          @if(!auth?.user)
+          <a href="/login" class="hover:text-indigo-200 transition">Connexion</a>
+          <a href="/register" class="hover:text-indigo-200 transition">Inscription</a>
+          @end
+          @if(auth?.user)
+          <a href="/form" class="hover:text-indigo-200 transition">Formulaire</a>
+          <a href="/goToUrl" class="hover:text-indigo-200 transition">Mes Urls</a>
+            @if(auth?.user?.role?.name === 'ADMIN')
+            <a href="/list-urls" class="hover:text-indigo-200 transition">Liste Urls</a>
+            @end
+           <!--  
+            @if(auth.user && auth.user.role && auth.user.role.name === 'ADMIN')
+              <div class="admin-badge">Mode Administrateur</div>
+            @endif 
+            -->
+          <a href="/profile" class="hover:text-indigo-200 transition">Profil</a>
+          <form action="/logout" method="POST">
+            {{csrfField()}}
+            <button class="text-sm text-white-500 hover:text-red-900" type="submit">
+              Deconnexion
+            </button>
+          </form>
+          @end
+        </div>
+      </div>
+    </div>
+  </nav>
