@@ -30,7 +30,7 @@ router.post('/urls/:id', [UrlController, 'destroy'])
 
 router.group(() => {
     router.get('/profile', [ProfilesController, 'show']).as('profile.show')
-    router.put('/profile', [ProfilesController, 'update']).as('profile.update')
+   // router.put('/profile', [ProfilesController, 'update']).as('profile.update')
   }).use(middleware.auth())
 
 //router.get('/:slug', [UrlController, 'redirect']).use(middleware.auth())
