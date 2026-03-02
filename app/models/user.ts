@@ -26,10 +26,13 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare password: string
 
   @column()
-  declare mfaSecret: string | null
+  declare isMfaEnabled: boolean
 
   @column()
-  declare isMfaEnabled: boolean
+  declare otpCode: string | null
+
+  @column.dateTime()
+  declare otpExpiresAt: DateTime | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

@@ -4,6 +4,7 @@ import { errors } from '@vinejs/vine'
 import { registerValidator } from '#validators/register'
 import { loginValidator } from '#validators/login'
 import speakeasy from 'speakeasy'
+import mail from '@adonisjs/mail/services/main'
 
 type ValidationErrorItem = {
   field: string
