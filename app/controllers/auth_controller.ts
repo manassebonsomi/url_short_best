@@ -184,7 +184,7 @@ export default class AuthController {
       return response.redirect().toPath('/goToUrl')
     }
 
-    session.flash('error', 'Code invalide ou expiré.')
+    console.log('Code invalide ou expiré.')
     return response.redirect().back()
   }
   
