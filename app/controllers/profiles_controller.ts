@@ -43,7 +43,16 @@ export default class ProfilesController {
       secret: secret,
       encoding: 'base32',
       token: code,
+      window: 2
     })
+
+    console.log('Secret utilisé:', secret)
+    console.log('Code reçu:', code)
+    console.log('Heure serveur:', new Date().toISOString())
+    console.log('Résultat de verification:', verified)
+    console.log('Window:', 2)
+    console.log('===============================================')
+    
 
     if (verified) {
       const user = auth.user!
@@ -59,6 +68,7 @@ export default class ProfilesController {
     }
 
     session.flash('error', 'Code invalide. Réessayez le scan.')
+    console.log('Code invalide. Réessayez le scan.')
     return response.redirect().back()
   }
 
