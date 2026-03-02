@@ -55,8 +55,6 @@ export default class UrlController {
     const shortFullUrl = `${request.protocol()}://${request.host()}/${slug}`
     const qr_image_url = await QRCode.toDataURL(shortFullUrl)
 
-
-    // Persistance CRUD : Create
    // await Url.create({ original_url, slug, qr_image_url })
    await user.related('urls').create({
     original_url: original_url,
@@ -103,7 +101,6 @@ export default class UrlController {
   }
 
   public async urls({ view, auth }: HttpContext) {
-    // CRUD : Read (Liste toutes les URLs)
     const urls = await Url.query().orderBy('created_at', 'desc')
     return view.render('pages/list-urls', { urls })
   }
@@ -133,17 +130,11 @@ export default class UrlController {
       return response.redirect().back()
   }
 
-  /**
-   * Afficher le formulaire de modification
-   */
   public async edit({ params, view }: HttpContext) {
     const url = await Url.findOrFail(params.id)
     return view.render('pages/edit', { url })
   }
 
-  /**
-   * Traiter la mise à jour (Action du formulaire)
-   */
   public async update({ params, request, response, session }: HttpContext) {
     const url = await Url.findOrFail(params.id)
     
@@ -151,7 +142,7 @@ export default class UrlController {
     const newOriginalUrl = request.input('url')
     const newSlug = request.input('short_slug')
 
-    // Si le slug a été modifié, on doit régénérer le QR Code
+    //  QR Code régénéré uniquement si slug a été modifié
     if (newSlug !== url.slug) {
       const shortFullUrl = `${request.protocol()}://${request.host()}/${newSlug}`
       url.qr_image_url = await QRCode.toDataURL(shortFullUrl)
@@ -161,7 +152,7 @@ export default class UrlController {
     url.original_url = newOriginalUrl
     url.slug = newSlug
 
-    await url.save() // CRUD : Update dans Postgres
+    await url.save() 
 
     session.flash('success', 'URL mise à jour avec succès')
     return response.redirect().toRoute('UrlController.goToUrl')

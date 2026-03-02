@@ -4,12 +4,9 @@ import speakeasy from 'speakeasy'
 import QRCode from 'qrcode'
 
 export default class ProfilesController {
-  /**
-   * Afficher le profil
-   */
+ 
   async show({ view, auth }: HttpContext) {
     const user = auth.user!
-    // On charge le rôle et on compte les URLs pour les statistiques
     await user.load('role')
     const urlsCount = await user.related('urls').query().count('* as total')
     
@@ -19,7 +16,6 @@ export default class ProfilesController {
     })
   }
 
-  // Prépare l'activation du MFA (Génère le QR Code)
   async setupMfa({ auth, view }: HttpContext) {
     const user = auth.user!
     
@@ -35,7 +31,7 @@ export default class ProfilesController {
     })
   }
 
-  // Valide le premier code et active définitivement le MFA
+  // Valide le premier code
   async confirmMfa({ request, response, auth, session }: HttpContext) {
     const { code, secret } = request.only(['code', 'secret'])
     
@@ -51,7 +47,7 @@ export default class ProfilesController {
     console.log('Heure serveur:', new Date().toISOString())
     console.log('Résultat de verification:', verified)
     console.log('Window:', 2)
-    console.log('===============================================')
+    console.log('======================')
 
 
     if (verified) {
@@ -74,12 +70,11 @@ export default class ProfilesController {
 
 
 
- // Désactiver le MFA
+ // Désactiver MFA
 async deactivateMfa({ request, response, auth, session }: HttpContext) {
     const user = auth.user!
     const { code } = request.only(['code'])
   
-    // Vérification du code avant désactivation
     const verified = speakeasy.totp.verify({
       secret: user.mfaSecret!,
       encoding: 'base32',

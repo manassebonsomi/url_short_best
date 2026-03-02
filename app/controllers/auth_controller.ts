@@ -5,6 +5,7 @@ import { registerValidator } from '#validators/register'
 import { loginValidator } from '#validators/login'
 import speakeasy from 'speakeasy'
 import mail from '@adonisjs/mail/services/main'
+import { DateTime } from 'luxon'
 
 type ValidationErrorItem = {
   field: string
@@ -125,26 +126,44 @@ export default class AuthController {
       )
     }
     else if (user.isMfaEnabled) {
-      // Stockage temporaire de l'ID en session, SANS connecter l'utilisateur
-      session.put('mfa_user_id', user.id)
-      return response.redirect().toRoute('auth.mfa.show')
-    }
+        const otp = Math.floor(100000 + Math.random() * 900000).toString()
+        
+        user.otpCode = otp
+        user.otpExpiresAt = DateTime.now().plus({ minutes: 10 })
+        await user.save()
+
+        await mail.send((message) => {
+          message
+            .to(user.email)
+            .from('test@gmail.com')
+            .subject('Votre code de sécurité MFA')
+            .html(`<h1>Votre code est : ${otp}</h1><p>Il expire dans 10 minutes.</p>`)
+        })
+
+        session.put('mfa_user_id', user.id)
+        return response.redirect().toRoute('auth.mfa.show')
+      }
 
     await auth.use('web').login(user)
     return response.redirect('/form')
-    } catch {
-      session.flash('error', 'Identifiants invalides')
-      return response.redirect().back()
+    } 
+    catch (error) {
+      const message = 'Email ou mot de passe incorrect'
+      return response.status(422).send(
+        await view.render('pages/login', {
+          errors: [{ field: 'email', message }],
+          errorMap: { email: message, password: message },
+          values: request.only(['email']),
+        })
+      )
     }
   }
 
-  // Affiche la vue pour entrer le code à 6 chiffres
   async showMfaVerify({ view, session, response }: HttpContext) {
     if (!session.has('mfa_user_id')) return response.redirect().toRoute('auth.login')
     return view.render('pages/mfa_verify')
   }
 
-  // Étape 3 : Validation du code OTP
   async verifyMfa({ request, response, auth, session }: HttpContext) {
     const userId = session.get('mfa_user_id')
     const code = request.input('code')

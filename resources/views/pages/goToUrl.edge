@@ -14,9 +14,8 @@
             Modifier
         </a>
         
-        <form action="{{ route('UrlController.destroy', { id: url.id }, { formAction: 'delete'}) }}" method="POST">
+        <form action="{{ route('UrlController.destroy', { id: url.id }) }}?_method=DELETE" method="POST">
             {{ csrfField() }}
-            <input type="hidden" name="_method" value="DELETE">
             <button type="submit" class="text-xs bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">
             Supprimer
             </button>
