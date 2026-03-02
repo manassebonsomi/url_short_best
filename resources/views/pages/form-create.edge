@@ -26,11 +26,11 @@
     {{ csrfField() }}
     <div class="mb-4">
       <label>Entrez URL complète</label>
-      <input type="url" name="url" required class="w-full border p-2">
+      <input type="url" name="url" value="{{ values?.url ?? '' }}" required class="w-full border p-2">
     </div>
     <div class="mb-4">
       <label>Entrer le shorturl au choix (Slug)</label>
-      <input type="text" name="short_slug" required class="w-full border p-2">
+      <input type="text" name="short_slug" value="{{ values?.short_slug ?? '' }}" required class="w-full border p-2">
       @if(errorMap?.short_slug)
       <p class="text-sm text-red-600">{{ errorMap.short_slug }}</p>
       @end

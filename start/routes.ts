@@ -5,14 +5,12 @@ const AuthController = () => import('#controllers/auth_controller')
 const UrlController = () => import('#controllers/urls_controller')
 const ProfilesController = () => import('#controllers/profiles_controller')
 
-// Routes Publiques
 router.get('/', [AuthController, 'Accueil'])
 router.get('/login', [AuthController, 'showLogin']).as('auth.login')
 router.post('/login', [AuthController, 'login'])
 router.get('/register', [AuthController, 'showRegister'])
 router.post('/register', [AuthController, 'register'])
 router.post('/logout', [AuthController, 'logout']).use(middleware.auth())
-
 
 router.get('/form', [UrlController, 'showForm']).use(middleware.auth())
 router.post('/shorten', [UrlController, 'store']).use(middleware.auth())
@@ -34,7 +32,7 @@ router.group(() => {
   }).use(middleware.auth())
 
 
-// Groupe protégé
+// Groupe des routes protégées
 router.group(() => {
     router.get('/profile/mfa/setup', [ProfilesController, 'setupMfa']).as('profile.mfa.setup')
     router.post('/profile/mfa/confirm', [ProfilesController, 'confirmMfa']).as('profile.mfa.confirm')
@@ -42,7 +40,7 @@ router.group(() => {
     router.post('/profile/mfa/toggle', [ProfilesController, 'toggleMfa']).as('profile.mfa.toggle')
   }).use(middleware.auth()).use(middleware.admin())
   
-// Routes MFA Login (Accessibles seulement si session mfa_user_id présente)
+// Routes MFA Login
 router.get('/login/mfa', [AuthController, 'showMfaVerify']).as('auth.mfa.show')
 router.post('/login/mfa', [AuthController, 'verifyMfa']).as('auth.mfa.verify')
 
