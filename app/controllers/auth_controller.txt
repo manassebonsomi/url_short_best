@@ -3,7 +3,6 @@ import { HttpContext } from '@adonisjs/core/http'
 import { errors } from '@vinejs/vine'
 import { registerValidator } from '#validators/register'
 import { loginValidator } from '#validators/login'
-import speakeasy from 'speakeasy'
 
 type ValidationErrorItem = {
   field: string
@@ -94,7 +93,7 @@ export default class AuthController {
     return response.redirect('/login')
   }
 
-  async login({ request, response, view, auth, session }: HttpContext) {
+  async login({ request, response, view, auth }: HttpContext) {
     let payload: { email: string; password: string }
     try {
       payload = await request.validateUsing(loginValidator)
@@ -110,9 +109,8 @@ export default class AuthController {
     }
     // const user = await User.findBy('email', payload.email)
     // const isValidPassword = user ? await hash.verify(user.password, payload.password) : false
-    try {
     const user = await User.verifyCredentials(payload.email, payload.password)
-    
+
     if (!user) {
       const message = 'Email ou mot de passe incorrect'
       return response.status(422).send(
@@ -123,47 +121,9 @@ export default class AuthController {
         })
       )
     }
-    else if (user.isMfaEnabled) {
-      // Stockage temporaire de l'ID en session, SANS connecter l'utilisateur
-      session.put('mfa_user_id', user.id)
-      return response.redirect().toRoute('auth.mfa.show')
-    }
 
     await auth.use('web').login(user)
     return response.redirect('/form')
-    } catch {
-      session.flash('error', 'Identifiants invalides')
-      return response.redirect().back()
-    }
-  }
-
-  // Affiche la vue pour entrer le code à 6 chiffres
-  async showMfaVerify({ view }: HttpContext) {
-    return view.render('pages/mfa_verify')
-  }
-
-  // Vérifie le code MFA final
-  async verifyMfa({ request, response, auth, session }: HttpContext) {
-    const userId = session.get('mfa_user_id')
-    const code = request.input('code')
-
-    if (!userId) return response.redirect().toRoute('auth.login')
-
-    const user = await User.findOrFail(userId)
-    const verified = speakeasy.totp.verify({
-      secret: user.mfaSecret!,
-      encoding: 'base32',
-      token: code,
-    })
-
-    if (verified) {
-      session.forget('mfa_user_id')
-      await auth.use('web').login(user)
-      return response.redirect().toPath('/form')
-    }
-
-    session.flash('error', 'Code de sécurité incorrect')
-    return response.redirect().back()
   }
 
   async logout({ auth, response }: HttpContext) {

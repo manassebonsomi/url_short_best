@@ -33,4 +33,16 @@ router.group(() => {
    // router.put('/profile', [ProfilesController, 'update']).as('profile.update')
   }).use(middleware.auth())
 
+
+// Groupe protégé
+router.group(() => {
+    router.get('/profile/mfa/setup', [ProfilesController, 'setupMfa']).as('profile.mfa.setup')
+    router.post('/profile/mfa/confirm', [ProfilesController, 'confirmMfa']).as('profile.mfa.confirm')
+    router.delete('/profile/mfa', [ProfilesController, 'deactivateMfa'])
+  }).use(middleware.auth()).use(middleware.admin())
+  
+// Routes MFA Login (Accessibles seulement si session mfa_user_id présente)
+router.get('/login/mfa', [AuthController, 'showMfaVerify']).as('auth.mfa.show')
+router.post('/login/mfa', [AuthController, 'verifyMfa']).as('auth.mfa.verify')
+
 //router.get('/:slug', [UrlController, 'redirect']).use(middleware.auth())
