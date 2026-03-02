@@ -1,7 +1,8 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, belongsTo } from '@adonisjs/lucid/orm'
+import { BaseModel, column, belongsTo, computed } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import User from '#models/user'
+import encryption from '@adonisjs/core/services/encryption'
 
 export default class Url extends BaseModel {
   @column({ isPrimary: true })
@@ -24,4 +25,9 @@ export default class Url extends BaseModel {
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+
+  @computed()
+  get encryptedId() {
+    return encryption.encrypt(this.id)
+  }
 }

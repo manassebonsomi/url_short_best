@@ -130,10 +130,15 @@ export default class UrlController {
       return response.redirect().back()
   }
 
-  public async edit({ params, view }: HttpContext) {
+  public async edit({ params, view, response, auth }: HttpContext) {
+  
     const url = await Url.findOrFail(params.id)
     return view.render('pages/edit', { url })
   }
+
+  public async showForbidden({ view }: HttpContext) {
+      return view.render('pages/forbidden', { message: 'Accès réservé aux administrateurs' })
+    }
 
   public async update({ params, request, response, session }: HttpContext) {
     const url = await Url.findOrFail(params.id)

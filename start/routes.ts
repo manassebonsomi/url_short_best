@@ -15,6 +15,8 @@ router.post('/logout', [AuthController, 'logout']).use(middleware.auth())
 router.get('/form', [UrlController, 'showForm']).use(middleware.auth())
 router.post('/shorten', [UrlController, 'store']).use(middleware.auth())
 
+router.get('/forbidden', [UrlController, 'showForbidden']).use(middleware.auth())
+
 router.get('/goToUrl', [UrlController, 'goToUrl']).as('UrlController.goToUrl').use(middleware.auth())
 router.get('/list-urls', [UrlController, 'urls']).as('UrlController.urls').use(middleware.auth()).use(middleware.admin())
 router.post('/search', [UrlController, 'handleSearch']).as('go.search').use(middleware.auth())

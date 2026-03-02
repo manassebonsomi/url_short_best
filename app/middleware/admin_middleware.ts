@@ -19,7 +19,9 @@ export default class AdminMiddleware {
 
     // On vérifie si le rôle existe et si son nom est 'admin'
     if (!user.role || user.role.name !== 'ADMIN') {
-      return ctx.response.forbidden('Accès réservé aux administrateurs')
+      //return ctx.view.render('pages/forbidden', { message: 'Accès réservé aux administrateurs' })
+     // return ctx.response.status(403).send('Accès réservé aux administrateurs')
+      return ctx.response.redirect('/forbidden')
     }
 
     /*
