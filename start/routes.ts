@@ -39,6 +39,7 @@ router.group(() => {
     router.get('/profile/mfa/setup', [ProfilesController, 'setupMfa']).as('profile.mfa.setup')
     router.post('/profile/mfa/confirm', [ProfilesController, 'confirmMfa']).as('profile.mfa.confirm')
     router.delete('/profile/mfa', [ProfilesController, 'deactivateMfa'])
+    router.post('/profile/mfa/toggle', [ProfilesController, 'toggleMfa']).as('profile.mfa.toggle')
   }).use(middleware.auth()).use(middleware.admin())
   
 // Routes MFA Login (Accessibles seulement si session mfa_user_id présente)

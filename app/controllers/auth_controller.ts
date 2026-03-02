@@ -139,34 +139,36 @@ export default class AuthController {
   }
 
   // Affiche la vue pour entrer le code à 6 chiffres
-  async showMfaVerify({ view }: HttpContext) {
+  async showMfaVerify({ view, session, response }: HttpContext) {
+    if (!session.has('mfa_user_id')) return response.redirect().toRoute('auth.login')
     return view.render('pages/mfa_verify')
   }
 
-  // Vérifie le code MFA final
+  // Étape 3 : Validation du code OTP
   async verifyMfa({ request, response, auth, session }: HttpContext) {
     const userId = session.get('mfa_user_id')
     const code = request.input('code')
 
-    if (!userId) return response.redirect().toRoute('auth.login')
-
     const user = await User.findOrFail(userId)
-    const verified = speakeasy.totp.verify({
-      secret: user.mfaSecret!,
-      encoding: 'base32',
-      token: code,
-    })
 
-    if (verified) {
+    const isValid = user.otpCode === code && 
+                    user.otpExpiresAt && 
+                    user.otpExpiresAt > DateTime.now()
+
+    if (isValid) {
+      user.otpCode = null
+      user.otpExpiresAt = null
+      await user.save()
+
       session.forget('mfa_user_id')
       await auth.use('web').login(user)
-      return response.redirect().toPath('/form')
+      return response.redirect().toPath('/goToUrl')
     }
 
-    session.flash('error', 'Code de sécurité incorrect')
+    session.flash('error', 'Code invalide ou expiré.')
     return response.redirect().back()
   }
-
+  
   async logout({ auth, response }: HttpContext) {
     await auth.use('web').logout()
     return response.redirect('/login')

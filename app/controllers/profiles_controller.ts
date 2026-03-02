@@ -52,7 +52,7 @@ export default class ProfilesController {
     console.log('Résultat de verification:', verified)
     console.log('Window:', 2)
     console.log('===============================================')
-    
+
 
     if (verified) {
       const user = auth.user!
@@ -94,6 +94,16 @@ async deactivateMfa({ request, response, auth, session }: HttpContext) {
       await user.save()
       return response.redirect().toRoute('profile.show')
     }
+    return response.redirect().back()
+  }
+
+  async toggleMfa({ auth, response, session }: HttpContext) {
+    const user = auth.user!
+    user.isMfaEnabled = !user.isMfaEnabled
+    await user.save()
+
+    const msg = user.isMfaEnabled ? 'activé' : 'désactivé'
+    session.flash('success', `MFA ${msg} avec succès.`)
     return response.redirect().back()
   }
 

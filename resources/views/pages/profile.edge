@@ -64,34 +64,28 @@
 <div class="mt-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
   <h3 class="text-lg font-bold mb-2">Sécurité du compte</h3>
   <p class="text-sm text-gray-600 mb-4">La double authentification (MFA) ajoute une couche de sécurité supplémentaire.</p>
-
-  @if(!user.isMfaEnabled)
-    <div class="flex items-center gap-4">
-      <span class="text-red-500 flex items-center text-sm">
-        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/></svg>
-        Désactivé
-      </span>
-      <a href="{{ route('profile.mfa.setup') }}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-indigo-700">
-        Activer le MFA
-      </a>
-    </div>
-  @else
-    <div class="space-y-4">
-      <span class="text-green-600 flex items-center text-sm font-bold">
-        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-        Activé
-      </span>
+  
+  <div class="border-t pt-4">
+    <p class="font-bold">Email : {{ user.email }}</p>
+    <div class="mt-6 p-4 bg-gray-50 rounded">
+      <h3 class="font-bold mb-2">Sécurité (2FA)</h3>
+      <p class="text-sm mb-4">Actuellement : 
+        <span class="{{ user.isMfaEnabled ? 'text-green-600' : 'text-red-600' }} font-bold">
+          {{ user.isMfaEnabled ? 'Activé' : 'Désactivé' }}
+        </span>
+      </p>
       
-      <form action="{{ route('ProfilesController.deactivateMfa') }}?_method=DELETE" method="POST" class="flex gap-2">
+      <form action="{{ route('profile.mfa.toggle') }}" method="POST">
         {{ csrfField() }}
-        <input type="text" name="code" placeholder="Code MFA pour confirmer" class="border p-2 rounded text-sm w-48" required>
-        <button type="submit" class="bg-red-100 text-red-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-200">
-          Désactiver le MFA
+        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">
+          {{ user.isMfaEnabled ? 'Désactiver le MFA' : 'Activer le MFA' }}
         </button>
       </form>
     </div>
-  @endif
+  </div>
 </div>
+
+
 </div>
 @endslot
 @end
