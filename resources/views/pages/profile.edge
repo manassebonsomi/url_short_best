@@ -27,13 +27,32 @@
     <div class="md:col-span-2">
       <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
         <h3 class="text-lg font-bold text-gray-800 mb-6">Paramètres du compte</h3>
-        
-        <form action="" method="POST" class="space-y-4">
+        @if(errors && errors.length)
+      <div class="mt-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <p class="font-semibold">Merci de corriger les erreurs suivantes :</p>
+        <ul class="mt-2 list-disc pl-5">
+          @each(error in errors)
+            <li>{{ error.message }}</li>
+          @end
+        </ul>
+      </div>
+    @end
+        @if(flashMessages.has('success'))
+          <div class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg border border-green-200">
+            {{ flashMessages.get('success') }}
+          </div>
+        @endif
+        @if(flashMessages.has('error'))
+          <div class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg border border-red-200">
+            {{ flashMessages.get('error') }}
+          </div>
+        @endif
+        <form action="{{ route('profile.update') }}?_method=PUT" method="POST" class="space-y-4">
           {{ csrfField() }}
           
           <div>
             <label class="block text-sm font-medium text-gray-700">Nom Complet</label>
-            <input type="text" name="ame" value="{{ old('name') || user.name }}" 
+            <input type="text" name="name" value="{{ old('name') || user.name }}" 
               class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500">
             @if(flashMessages.has('errors.name'))
               <p class="text-red-500 text-xs mt-1">{{ flashMessages.get('errors.name') }}</p>
@@ -81,6 +100,12 @@
           {{ user.isMfaEnabled ? 'Désactiver le MFA' : 'Activer le MFA' }}
         </button>
       </form>
+      @if(flashMessages.has('error'))
+      <p class="text-red-500 mt-2">{{ flashMessages.get('error') }}</p>
+      @endif
+      @if(flashMessages.has('success'))
+      <p class="text-green-500 mt-2">{{ flashMessages.get('success') }}</p>
+      @endif
     </div>
   </div>
 </div>

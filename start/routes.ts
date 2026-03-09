@@ -30,16 +30,14 @@ router.delete('/urls/:id', [UrlController, 'destroy']).as('UrlController.destroy
 
 router.group(() => {
     router.get('/profile', [ProfilesController, 'show']).as('profile.show')
-   // router.put('/profile', [ProfilesController, 'update']).as('profile.update')
+    router.post('/profile/mfa/toggle', [ProfilesController, 'toggleMfa']).as('profile.mfa.toggle')
+    router.put('/profile/update', [ProfilesController, 'update']).as('profile.update')
   }).use(middleware.auth())
 
 
 // Groupe des routes protégées
 router.group(() => {
     router.get('/profile/mfa/setup', [ProfilesController, 'setupMfa']).as('profile.mfa.setup')
-    router.post('/profile/mfa/confirm', [ProfilesController, 'confirmMfa']).as('profile.mfa.confirm')
-    router.delete('/profile/mfa', [ProfilesController, 'deactivateMfa'])
-    router.post('/profile/mfa/toggle', [ProfilesController, 'toggleMfa']).as('profile.mfa.toggle')
   }).use(middleware.auth()).use(middleware.admin())
   
 // Routes MFA Login

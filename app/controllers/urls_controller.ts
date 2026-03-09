@@ -1,6 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
 // import { nanoid } from 'nanoid'
-import generateSlug from '#helpers/generateSlug'
 import Url from '#models/url'
 import QRCode from 'qrcode'
 import { urlValidator } from '#validators/url'
@@ -100,7 +99,7 @@ export default class UrlController {
     return view.render('pages/goToUrl', { urls })
   }
 
-  public async urls({ view, auth }: HttpContext) {
+  public async urls({ view }: HttpContext) {
     const urls = await Url.query().orderBy('created_at', 'desc')
     return view.render('pages/list-urls', { urls })
   }
@@ -130,7 +129,7 @@ export default class UrlController {
       return response.redirect().back()
   }
 
-  public async edit({ params, view, response, auth }: HttpContext) {
+  public async edit({ params, view  }: HttpContext) {
   
     const url = await Url.findOrFail(params.id)
     return view.render('pages/edit', { url })

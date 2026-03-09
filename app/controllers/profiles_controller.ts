@@ -2,6 +2,8 @@ import { HttpContext } from '@adonisjs/core/http'
 import vine from '@vinejs/vine'
 import speakeasy from 'speakeasy'
 import QRCode from 'qrcode'
+import User from '#models/user'
+
 
 export default class ProfilesController {
  
@@ -31,7 +33,56 @@ export default class ProfilesController {
     })
   }
 
+  async toggleMfa({ auth, response, session }: HttpContext) {
+    const user = auth.user!
+    user.isMfaEnabled = !user.isMfaEnabled
+    await user.save()
+
+    const msg = user.isMfaEnabled ? 'activé' : 'désactivé'
+    session.flash('success', `MFA ${msg} avec succès.`)
+    return response.redirect().back()
+  }
+
+  async update({ request, response, auth, session }: HttpContext) {
+    const user = auth.user!
+    const userId = user.id
+
+    const profileSchema =  vine.compile(
+      vine.object({
+        name: vine.string().trim().minLength(3).maxLength(100),
+        email: vine.string().trim().email()
+      })
+    )
+
+    try {
+      const data = await request.validateUsing(profileSchema)
+      const existingUser = await User.query()
+        .where('email', data.email)
+        .whereNot('id', userId)
+        .first()
+
+      if (existingUser) {
+        session.flash('error', 'Cet email est déjà utilisé par un autre compte.')
+        session.flash('errors', { email: 'Cet email est déjà pris.' })
+        return response.redirect().back()
+      }
+
+
+      user.merge(data)
+      await user.save()
+
+      session.flash('success', 'Profil mis à jour avec succès.')
+      return response.redirect().back()
+
+    } catch (error) {
+      session.flash('error', 'Une erreur technique est survenue lors de la sauvegarde.')
+      return response.redirect().back()
+    }
+  }
+
+
   // Valide le premier code
+ /*
   async confirmMfa({ request, response, auth, session }: HttpContext) {
     const { code, secret } = request.only(['code', 'secret'])
     
@@ -67,10 +118,12 @@ export default class ProfilesController {
     console.log('Code invalide. Réessayez le scan.')
     return response.redirect().back()
   }
+  */
 
 
 
  // Désactiver MFA
+ /*
 async deactivateMfa({ request, response, auth, session }: HttpContext) {
     const user = auth.user!
     const { code } = request.only(['code'])
@@ -91,16 +144,7 @@ async deactivateMfa({ request, response, auth, session }: HttpContext) {
     }
     return response.redirect().back()
   }
-
-  async toggleMfa({ auth, response, session }: HttpContext) {
-    const user = auth.user!
-    user.isMfaEnabled = !user.isMfaEnabled
-    await user.save()
-
-    const msg = user.isMfaEnabled ? 'activé' : 'désactivé'
-    session.flash('success', `MFA ${msg} avec succès.`)
-    return response.redirect().back()
-  }
+  */
 
   /*
   async update({ request, response, auth, session }: HttpContext) {
@@ -133,9 +177,4 @@ async deactivateMfa({ request, response, auth, session }: HttpContext) {
     
   }
   */
-
-
-
-
-
 }
